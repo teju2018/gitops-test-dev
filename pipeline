@@ -54,19 +54,7 @@ pipeline {
             }
         }
 
-        stage("See the Variable") {
-            steps {
-                script {
-                    def branch = params.DEV_BRANCH
-                    echo "Pushing changes to branch: ${branch}"
-
-                    sh '''
-                    git config --global user.email "ganeshreddy7610@gmail.com"
-                    git config --global user.name "ganesh-redy"
-                    '''
-                }
-            }
-        }
+        
 
         stage('Push to Branch') {
     steps {
@@ -79,8 +67,7 @@ pipeline {
             git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
             cp ../${DEPLOY_YAML} .
             cp ../${env.dockerfile1} .
-            git config --global user.email "ganeshreddy7610@gmail.com"
-            git config --global user.name "ganesh-redy"
+            
             git add ${DEPLOY_YAML}
             git commit -m "Update from pipeline build ${BUILD_NUMBER}" 
             git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/gitops-test3.git ${params.DEV_BRANCH}
