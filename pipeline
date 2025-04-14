@@ -8,6 +8,17 @@ pipeline {
         IMAGE_PREFIX = "ganesh6498"
         DEPLOY_YAML = "deployment.yaml"
     }
+    stage('docker login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub', 
+                                                  usernameVariable: 'DOCKER_USER', 
+                                                  passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
     stages {
         stage("Build and Push Docker Image") {
             steps {
@@ -35,6 +46,24 @@ pipeline {
                 }
             }
         }
+        stage("See the variable"){
+         step{
+        script { 
+         def branch = params.DEV_BRANCH
+         def token = okay()
+         echo "Pushing changes to branch: ${branch}"
+         echo "token ${token}"
+         sh """ 
+          
+         git config --global user.email "ganeshreddy7610@gmail.com"
+         git config --global user.name "ganesh-redy"
+
+"""
+             
+        
+}
+}
+     }
 
         stage("Push to Branch") {
             steps {
