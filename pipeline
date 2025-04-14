@@ -66,15 +66,15 @@ pipeline {
             }
         }
 
-        stage('Push to Branch') {
+    stage('Push to Branch') {
     steps {
-        withCredentials([string(credentialsId: 'github-token', variable: 'GIT_TOKEN')]) {
+        withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
             sh '''
                 # Cleanup any previous temp directory
                 rm -rf git-temp
 
                 # Clone the repo
-                git clone https://${GIT_TOKEN}@github.com/ganesh-redy/gitops-test2.git git-temp
+                git clone https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git git-temp
                 cd git-temp
 
                 # Checkout target branch (create if doesn't exist)
@@ -90,12 +90,13 @@ pipeline {
                 # Commit and push changes
                 git add deployment.yaml
                 git commit -m "Update from pipeline build ${BUILD_NUMBER}" || echo "No changes to commit"
-                gir remote origin set-url https://${GIT_TOKEN}@github.com/ganesh-redy/gitops-test2.git
+                git remote origin set-url https://${GIT_TOKEN}@github.com/ganesh-redy/gitops-test2.git
                 git push origin ${params.DEV_BRANCH}
             '''
         }
     }
 }
+
 
 
     }
