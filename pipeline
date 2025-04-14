@@ -76,7 +76,7 @@ pipeline {
                             rm -rf git-temp
 
                             # Clone the repo
-                            git clone https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git git-temp
+                            git clone https://github.com/ganesh-redy/gitops-test2.git git-temp
                             cd git-temp
 
                             # Checkout target branch (create if doesn't exist)
