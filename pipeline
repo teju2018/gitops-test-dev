@@ -10,7 +10,7 @@ pipeline {
     environment {
         IMAGE_PREFIX = "ganesh6498"
         DEPLOY_YAML = "deployment.yaml"
-        DOCKERFILE_NAME = ''
+       
     }
 
     stages {
