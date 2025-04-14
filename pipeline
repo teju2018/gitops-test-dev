@@ -1,9 +1,12 @@
 @Library('share_lib@main') _
+
 pipeline {
     agent any
+
     parameters {
         choice(name: 'DEV_BRANCH', choices: ['dev1', 'dev2', 'dev3'], description: 'Select developer branch')
     }
+
     environment {
         IMAGE_PREFIX = "ganesh6498"
         DEPLOY_YAML = "deployment.yaml"
@@ -54,50 +57,47 @@ pipeline {
             steps {
                 script {
                     def branch = params.DEV_BRANCH
-                    def token = okay()
                     echo "Pushing changes to branch: ${branch}"
-                    echo "token ${token}"
 
-                    sh """
+                    sh '''
                     git config --global user.email "ganeshreddy7610@gmail.com"
                     git config --global user.name "ganesh-redy"
-                    """
+                    '''
                 }
             }
         }
 
-    stage('Push to Branch') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-            sh '''
-                # Cleanup any previous temp directory
-                rm -rf git-temp
+        stage('Push to Branch') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    script {
+                        sh """
+                            # Cleanup any previous temp directory
+                            rm -rf git-temp
 
-                # Clone the repo
-                git clone https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git git-temp
-                cd git-temp
+                            # Clone the repo
+                            git clone https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git git-temp
+                            cd git-temp
 
-                # Checkout target branch (create if doesn't exist)
-                git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
+                            # Checkout target branch (create if doesn't exist)
+                            git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
 
-                # Copy updated file from Jenkins workspace
-                cp ../deployment.yaml .
+                            # Copy updated file from Jenkins workspace
+                            cp ../${DEPLOY_YAML} .
 
-                # Configure Git
-                git config user.email "ganeshreddy7610@gmail.com"
-                git config user.name "ganesh-redy"
+                            # Configure Git
+                            git config user.email "ganeshreddy7610@gmail.com"
+                            git config user.name "ganesh-redy"
 
-                # Commit and push changes
-                git add deployment.yaml
-                git commit -m "Update from pipeline build ${BUILD_NUMBER}" || echo "No changes to commit"
-                git remote origin set-url https://${GIT_TOKEN}@github.com/ganesh-redy/gitops-test2.git
-                git push origin ${params.DEV_BRANCH}
-            '''
+                            # Commit and push changes
+                            git add ${DEPLOY_YAML}
+                            git commit -m "Update from pipeline build ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git
+                            git push origin ${params.DEV_BRANCH}
+                        """
+                    }
+                }
+            }
         }
-    }
-}
-
-
-
     }
 }
