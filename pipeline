@@ -1,73 +1,57 @@
-@Library('share_lib@main') _ 
+@Library('share_lib@main') _
 pipeline {
     agent any
+    parameters {
+        choice(name: 'DEV_BRANCH', choices: ['dev1', 'dev2', 'dev3'], description: 'Select developer branch')
+    }
     environment {
-        ZONE = "us-central1-c"
-        IMAGE_NAME = "sample1"
-       
-        CLUSTER_NAME = "cluster-2"
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp')
+        IMAGE_PREFIX = "ganesh6498"
         DEPLOY_YAML = "frontend.yaml"
-        DOCKER1= "Dockerfile"
-        DOCKER2= "web1.Dockerfile"
-        DOCKER3= " web3.Dockerfile"
-        NAME="ganesh"
     }
     stages {
-        stage('docker login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub', 
-                                                  usernameVariable: 'DOCKER_USER', 
-                                                  passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    '''
-                }
-            }
-        }
-        stage('gcp login') {
-            steps {
-                sh '''
-                gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                '''
-            }
-        }
-        stage("build image") {
-            steps {
-                sh '''
-                docker build -t "$DOCKER1" DOCKER1
-                docker tag "$DOCKER1" ganesh6498/$DOCKER3:$BUILD_NUMBER
-                '''
-            }
-        }
-        stage('docker push') {
-            steps {
-                sh '''
-                docker push ganesh6498/$IMAGE_NAME:$BUILD_NUMBER
-                '''
-            }
-        }
-        stage('Update Deployment File') {
+        stage("Build and Push Docker Image") {
             steps {
                 script {
-                    echo 'Updating deployment YAML with the latest Docker image...'
+                    def dockerfile = ''
+                    def imageName = ''
+                    if (params.DEV_BRANCH == 'dev1') {
+                        dockerfile = 'Dockerfile'
+                        imageName = 'dev1-app'
+                    } else if (params.DEV_BRANCH == 'dev2') {
+                        dockerfile = 'web1.Dockerfile'
+                        imageName = 'dev2-app'
+                    } else if (params.DEV_BRANCH == 'dev3') {
+                        dockerfile = 'web2.Dockerfile'
+                        imageName = 'dev3-app'
+                    }
+
+                    env.IMAGE_NAME = imageName // it can use in any block because it was decleared as env
+
                     sh """
-                    sed -i 's|image: .*|image: ganesh6498/${IMAGE_NAME}:${BUILD_NUMBER}|' ${DEPLOY_YAML}
+                    docker build -f ${dockerfile} -t ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER} .
+                    docker push ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER}
+                    sed -i 's|image: .*|image: ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER}|' ${DEPLOY_YAML}
                     """
                 }
             }
         }
-    
-        
-       stage (" push to git"){
-        sh ''' 
-        git add .
-        git commit -m  "pipe-${BUILD_NUMBER}"
-        git remote set-url origin https://${code}@github.com/ganesh-redy/gitops1.git
-        git push origin  ${NAME}
 
-        
-        '''
-       }
+      stage("Push to Branch ${params.DEV_BRANCH}") {
+            steps {
+                script {
+                    def token = okay()  // secure function from your shared library
+
+                    sh """
+                    rm -rf .git
+                    git init
+                    git add .
+                    git commit -m "Update from pipeline build ${BUILD_NUMBER}"
+                    git branch -M ${params.DEV_BRANCH}
+                    git remote add origin https://${token}@github.com/ganesh-redy/gitops1.git
+                    git push -f origin ${params.DEV_BRANCH}
+                    """
+                }
+            }
+        }
     }
 }
