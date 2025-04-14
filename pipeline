@@ -10,6 +10,7 @@ pipeline {
     environment {
         IMAGE_PREFIX = "ganesh6498"
         DEPLOY_YAML = "deployment.yaml"
+        DOCKERFILE_NAME = ''
     }
 
     stages {
@@ -43,7 +44,7 @@ pipeline {
                     }
 
                     env.IMAGE_NAME = imageName
-                    env.dockerfile1 = dockerfile
+                    env.DOCKERFILE_NAME = '' = dockerfile
 
                     sh """
                     docker build -f ${dockerfile} -t ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER} .
@@ -66,7 +67,7 @@ pipeline {
             cd git-temp
             git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
             cp ../${DEPLOY_YAML} .
-            cp ../${env.dockerfile1} .
+            cp ../${DOCKERFILE_NAME} .
             
             git add ${DEPLOY_YAML}
             git commit -m "Update from pipeline build ${BUILD_NUMBER}" 
