@@ -80,7 +80,7 @@ pipeline {
                     git add .
                     git commit -m "Update from pipeline build ${BUILD_NUMBER}"
                     git branch -M ${branch}
-                    git remote add origin https://${token}@github.com/ganesh-redy/gitops-test2.git
+                    git remote add origin https://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@github.com/ganesh-redy/gitops-test2.git
                     git push -f origin ${branch}
                     """
                 }
