@@ -43,6 +43,7 @@ pipeline {
                     }
 
                     env.IMAGE_NAME = imageName
+                    env.dockerfile1 = dockerfile
 
                     sh """
                     docker build -f ${dockerfile} -t ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER} .
@@ -77,10 +78,11 @@ pipeline {
             cd git-temp
             git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
             cp ../${DEPLOY_YAML} .
+            cp ../${env.dockerfile1} .
             git config --global user.email "ganeshreddy7610@gmail.com"
             git config --global user.name "ganesh-redy"
             git add ${DEPLOY_YAML}
-            git commit -m "Update from pipeline build ${BUILD_NUMBER}" || echo "No changes to commit"
+            git commit -m "Update from pipeline build ${BUILD_NUMBER}" 
             git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/gitops-test2.git ${params.DEV_BRANCH}
         """
     }
