@@ -1,0 +1,73 @@
+@Library('share_lib@main') _ 
+pipeline {
+    agent any
+    environment {
+        ZONE = "us-central1-c"
+        IMAGE_NAME = "sample1"
+       
+        CLUSTER_NAME = "cluster-2"
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp')
+        DEPLOY_YAML = "frontend.yaml"
+        DOCKER1= "Dockerfile"
+        DOCKER2= "web1.Dockerfile"
+        DOCKER3= " web3.Dockerfile"
+        NAME="ganesh"
+    }
+    stages {
+        stage('docker login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub', 
+                                                  usernameVariable: 'DOCKER_USER', 
+                                                  passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
+        stage('gcp login') {
+            steps {
+                sh '''
+                gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                '''
+            }
+        }
+        stage("build image") {
+            steps {
+                sh '''
+                docker build -t "$DOCKER1" DOCKER1
+                docker tag "$DOCKER1" ganesh6498/$DOCKER3:$BUILD_NUMBER
+                '''
+            }
+        }
+        stage('docker push') {
+            steps {
+                sh '''
+                docker push ganesh6498/$IMAGE_NAME:$BUILD_NUMBER
+                '''
+            }
+        }
+        stage('Update Deployment File') {
+            steps {
+                script {
+                    echo 'Updating deployment YAML with the latest Docker image...'
+                    sh """
+                    sed -i 's|image: .*|image: ganesh6498/${IMAGE_NAME}:${BUILD_NUMBER}|' ${DEPLOY_YAML}
+                    """
+                }
+            }
+        }
+    
+        
+       stage (" push to git"){
+        sh ''' 
+        git add .
+        git commit -m  "pipe-${BUILD_NUMBER}"
+        git remote set-url origin https://${code}@github.com/ganesh-redy/gitops1.git
+        git push origin  ${NAME}
+
+        
+        '''
+       }
+    }
+}
