@@ -44,7 +44,7 @@ pipeline {
                     }
 
                     env.IMAGE_NAME = imageName
-                    env.DOCKERFILE_NAME = '' = dockerfile
+                    env.DOCKERFILE_NAME = dockerfile
 
                     sh """
                     docker build -f ${dockerfile} -t ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER} .
