@@ -66,26 +66,34 @@ pipeline {
             }
         }
 
-        stage("Push to Branch") {
-            steps {
-                script {
-                    def branch = params.DEV_BRANCH
-                    def token = okay()
+        stage('Push to GitHub') {
+    steps {
+        script {
+            // Set Git identity
+            sh 'git config --global user.email "ganeshreddy7610@gmail.com"'
+            sh 'git config --global user.name "ganesh-redy"'
 
-                    echo "Pushing changes to branch: ${branch}"
+            // Commit changes (only if necessary)
+            sh '''
+                git add .
+                git commit -m 'Update from pipeline build ${BUILD_NUMBER}' || echo "No changes to commit"
+            '''
 
-                    sh """
-                    rm -rf .git
-                    git init
-                    git add .
-                    git commit -m "Update from pipeline build ${BUILD_NUMBER}"
-                    git branch -M ${branch}
-                    git remote add origin https://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@github.com/ganesh-redy/gitops-test2.git
-                    git push -f origin ${branch}
-                    """
-                }
+            // Use stored credentials to push to remote
+            withCredentials([usernamePassword(credentialsId: 'github-token',
+                                              usernameVariable: 'GIT_USER',
+                                              passwordVariable: 'GIT_PASS')]) {
+                sh '''
+                    git branch -M dev1
+                    git remote remove origin || true
+                    git remote add origin https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git
+                    git push -f origin dev1
+                '''
             }
         }
+    }
+}
+
 
     }
 }
