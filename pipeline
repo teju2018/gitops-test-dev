@@ -1,4 +1,4 @@
-@Library('share_lib@main') _
+@Library('share_lib@main') _ 
 pipeline {
     agent any
     parameters {
@@ -6,7 +6,7 @@ pipeline {
     }
     environment {
         IMAGE_PREFIX = "ganesh6498"
-        DEPLOY_YAML = "frontend.yaml"
+        DEPLOY_YAML = "deployment.yaml"
     }
     stages {
         stage("Build and Push Docker Image") {
@@ -25,7 +25,7 @@ pipeline {
                         imageName = 'dev3-app'
                     }
 
-                    env.IMAGE_NAME = imageName // it can use in any block because it was decleared as env
+                    env.IMAGE_NAME = imageName // it can use in any block because it was declared as env
 
                     sh """
                     docker build -f ${dockerfile} -t ${IMAGE_PREFIX}/${imageName}:${BUILD_NUMBER} .
@@ -36,19 +36,22 @@ pipeline {
             }
         }
 
-      stage("Push to Branch ${params.DEV_BRANCH}") {
+        stage("Push to Branch") {
             steps {
                 script {
+                    def branch = params.DEV_BRANCH
                     def token = okay()  // secure function from your shared library
 
+                    echo "Pushing changes to branch: ${branch}"
+                    
                     sh """
                     rm -rf .git
                     git init
                     git add .
                     git commit -m "Update from pipeline build ${BUILD_NUMBER}"
-                    git branch -M ${params.DEV_BRANCH}
+                    git branch -M ${branch}
                     git remote add origin https://${token}@github.com/ganesh-redy/gitops-test2.git
-                    git push -f origin ${params.DEV_BRANCH}
+                    git push -f origin ${branch}
                     """
                 }
             }
