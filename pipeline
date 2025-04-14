@@ -76,7 +76,7 @@ pipeline {
                             rm -rf git-temp
 
                             # Clone the repo
-                            git clone https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git git-temp
+                            git clone https://github.com/ganesh-redy/gitops-test2.git git-temp
                             cd git-temp
 
                             # Checkout target branch (create if doesn't exist)
@@ -94,7 +94,7 @@ pipeline {
                             git commit -m "Update from pipeline build ${BUILD_NUMBER}" || echo "No changes to commit"
 
                             # Push to GitHub directly using credentials in URL
-                            git push https://${GIT_USER}:${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git ${params.DEV_BRANCH}
+                            git push https://${GIT_PASS}@github.com/ganesh-redy/gitops-test2.git ${params.DEV_BRANCH}
                         """
                     }
                 }
