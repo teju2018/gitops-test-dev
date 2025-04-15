@@ -1,12 +1,14 @@
+
+
 pipeline {
     agent any
 
     parameters {
-        string(defaultValue: ['dev1', 'dev2', 'dev3'],name: 'DEV_BRANCH')
+        choice(name: 'DEV_BRANCH', choices: ['deve-1', 'deve-2', 'deve-3'], description: 'Select developer branch')
     }
 
     environment {
-        IMAGE_PREFIX = "xyz673"
+        IMAGE_PREFIX = "ganesh6498"
         DEPLOY_YAML = "deployment.yaml"
        
     }
@@ -30,15 +32,15 @@ pipeline {
                 script {
                     def dockerfile = ''
                     def imageName = ''
-                    if (params.DEV_BRANCH == 'dev1') {
+                    if (params.DEV_BRANCH == 'deve-1') {
                         dockerfile = 'Dockerfile'
-                        imageName = 'dev1-app'
-                    } else if (params.DEV_BRANCH == 'dev2') {
+                        imageName = 'dev-test1'
+                    } else if (params.DEV_BRANCH == 'deve-2') {
                         dockerfile = 'web1.Dockerfile'
-                        imageName = 'dev2-app'
-                    } else if (params.DEV_BRANCH == 'dev3') {
+                        imageName = 'dev-test2'
+                    } else if (params.DEV_BRANCH == 'deve-3') {
                         dockerfile = 'web2.Dockerfile'
-                        imageName = 'dev3-app'
+                        imageName = 'dev-test3'
                     }
 
                     env.IMAGE_NAME = imageName
@@ -67,9 +69,9 @@ pipeline {
             cp ../${DEPLOY_YAML} .
             cp ../${env.DOCKERFILE_NAME} .
             
-            git add ${DEPLOY_YAML}
+            git add .
             git commit -m "Update from pipeline build ${BUILD_NUMBER}" 
-            git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/test2-gitops.gitt ${params.DEV_BRANCH}
+            git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/test55-gitops.git ${params.DEV_BRANCH}
         """
     }
 }
