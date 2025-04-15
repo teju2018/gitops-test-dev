@@ -1,14 +1,12 @@
-
-
 pipeline {
     agent any
 
     parameters {
-        choice(name: 'DEV_BRANCH', choices: ['dev1', 'dev2', 'dev3'], description: 'Select developer branch')
+        string(defaultValue: ['dev1', 'dev2', 'dev3'],name: 'DEV_BRANCH')
     }
 
     environment {
-        IMAGE_PREFIX = "ganesh6498"
+        IMAGE_PREFIX = "xyz673"
         DEPLOY_YAML = "deployment.yaml"
        
     }
