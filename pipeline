@@ -71,7 +71,7 @@ pipeline {
             
             git add ${DEPLOY_YAML}
             git commit -m "Update from pipeline build ${BUILD_NUMBER}" 
-            git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/test-gitops1.git ${params.DEV_BRANCH}
+            git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/test2-gitops.gitt ${params.DEV_BRANCH}
         """
     }
 }
