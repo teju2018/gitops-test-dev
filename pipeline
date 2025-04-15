@@ -66,6 +66,8 @@ pipeline {
             rm -rf git-temp
             git clone https://teju2018:${GITHUB_TOKEN}@github.com/teju2018/argocd-demo-1st.git git-temp
             cd git-temp
+            git config --globel user.email "paul123@gmail.com"
+            git config --globel user.name "Tejpaul"
             git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
             cp ../${DEPLOY_YAML} .
             cp ../${env.DOCKERFILE_NAME} .
