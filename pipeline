@@ -63,7 +63,7 @@ pipeline {
     script {
         sh """
             rm -rf git-temp
-            git clone https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/gitops-test2.git git-temp
+            git clone https://teju2018:${GITHUB_TOKEN}@github.com/teju2018/argocd-demo-1st.git git-temp
             cd git-temp
             git checkout ${params.DEV_BRANCH} || git checkout -b ${params.DEV_BRANCH}
             cp ../${DEPLOY_YAML} .
@@ -71,7 +71,7 @@ pipeline {
             
             git add .
             git commit -m "Update from pipeline build ${BUILD_NUMBER}" 
-            git push https://ganesh-redy:${GITHUB_TOKEN}@github.com/ganesh-redy/test55-gitops.git ${params.DEV_BRANCH}
+            git push https://teju2018:${GITHUB_TOKEN}@github.com/teju2018/argocd-demo-1st.git ${params.DEV_BRANCH}
         """
     }
 }
